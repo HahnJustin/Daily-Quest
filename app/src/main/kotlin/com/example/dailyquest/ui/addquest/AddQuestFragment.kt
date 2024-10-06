@@ -21,27 +21,6 @@ class AddQuestFragment : Fragment() {
     private var questDescInput: EditText? = null
     private var prioritySpinner: Spinner? = null
     private var selectedPriorityValue: Int = 5000  // Default to "normal" priority (5000)
-    private var task: Task? = null
-
-
-    companion object {
-        private const val ARG_TASK = "task"
-
-        fun newInstance(task: Task?): AddQuestFragment {
-            val fragment = AddQuestFragment()
-            val args = Bundle()
-            args.putParcelable(ARG_TASK, task)
-            fragment.arguments = args
-            return fragment
-        }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            task = it.getParcelable(ARG_TASK)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
