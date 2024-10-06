@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Preference to pick a time -->
+    <com.example.dailyquest.ui.settings.TimePickerPreference
+        android:key="start_day_time"
+        android:title="Start Day Time"
+        android:summary="Set the start time for the day"
+        android:defaultValue="07:00" />
+
+    <!-- Preference for resetting the data -->
+    <Preference
+        android:key="reset_data_container"
+        android:title="Reset Data"
+        android:summary="Delete the current data and start fresh" />
+</androidx.preference.PreferenceScreen>

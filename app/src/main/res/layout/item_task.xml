@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <!-- Task name and description -->
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:gravity="start"
+        android:orientation="vertical">
+
+        <!-- Edit and Delete buttons -->
+        <TextView
+            android:id="@+id/taskName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Task Name"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/taskDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Task Description" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal"
+        android:layout_alignParentRight="true">
+
+        <!-- Edit button with pencil icon -->
+
+        <!-- Delete button with trashcan icon -->
+
+        <ImageButton
+            android:id="@+id/editButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackground"
+            android:backgroundTint="@color/parchment_light"
+            android:contentDescription="Edit"
+            android:scaleType="fitXY"
+            android:padding="2dp"
+            android:src="@drawable/baseline_edit_square_24"
+            app:maxImageSize="40dp"
+            app:tint="@color/parchment_dark" />
+
+        <ImageButton
+            android:id="@+id/deleteButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="?attr/selectableItemBackground"
+            android:backgroundTint="@color/parchment_light"
+            android:scaleType="fitXY"
+            android:contentDescription="Delete"
+            android:padding="2dp"
+            android:src="@drawable/baseline_delete_24"
+            app:maxImageSize="40dp"
+            app:tint="@color/parchment_dark" />
+    </LinearLayout>
+
+</RelativeLayout>

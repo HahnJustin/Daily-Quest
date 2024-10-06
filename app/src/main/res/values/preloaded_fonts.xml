@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="preloaded_fonts" translatable="false">
+        <item>@font/aguafina_script</item>
+        <item>@font/miss_fajardose</item>
+        <item>@font/silkscreen</item>
+        <item>@font/silkscreen_bold</item>
+        <item>@font/windsong</item>
+    </array>
+</resources>
