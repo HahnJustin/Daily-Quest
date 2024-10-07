@@ -9,10 +9,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.dailyquest.R
 import com.example.dailyquest.database.AppDatabase
 import com.example.dailyquest.databinding.FragmentDatabaseViewerBinding
 import com.example.dailyquest.database.Task
+import com.example.dailyquest.ui.addquest.AddQuestFragment
 import com.example.dailyquest.utils.JsonManager
 import kotlinx.coroutines.launch
 
@@ -74,9 +77,7 @@ class DatabaseViewerFragment : Fragment() {
     }
 
     private fun onEditTask(task: Task) {
-        // Handle task editing, you could navigate to an edit screen
-        // For now, let's just print it
-        // Example: Edit task logic can be implemented here
+        navigateToEditTask(task)
     }
 
     private fun onDeleteTask(task: Task) {
@@ -119,5 +120,10 @@ class DatabaseViewerFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun navigateToEditTask(task: Task) {
+        val action = DatabaseViewerFragmentDirections.actionEditTask(task)
+        findNavController().navigate(action)
     }
 }

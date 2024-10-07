@@ -15,7 +15,12 @@
         android:id="@+id/nav_add_quest"
         android:name="com.example.dailyquest.ui.addquest.AddQuestFragment"
         android:label="AddQuest"
-        tools:layout="@layout/fragment_add_quest" />
+        tools:layout="@layout/fragment_add_quest">
+        <argument
+            android:name="task"
+            app:argType="com.example.dailyquest.database.Task"
+            app:nullable="true"/>
+    </fragment>
 
     <fragment
         android:id="@+id/nav_settings"
@@ -27,5 +32,9 @@
         android:id="@+id/nav_data_viewer"
         android:name="com.example.dailyquest.ui.databaseviewer.DatabaseViewerFragment"
         android:label="@string/menu_dataviewer"
-        tools:layout="@layout/fragment_database_viewer" />
+        tools:layout="@layout/fragment_database_viewer">
+        <action
+            android:id="@+id/action_edit_task"
+            app:destination="@id/nav_add_quest"/>
+    </fragment>
 </navigation>

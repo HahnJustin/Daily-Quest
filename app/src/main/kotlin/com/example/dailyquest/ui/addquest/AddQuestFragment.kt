@@ -10,17 +10,51 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.dailyquest.R
 import com.example.dailyquest.database.AppDatabase
 import com.example.dailyquest.database.Task
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 class AddQuestFragment : Fragment() {
 
+    private val priorityOptions = arrayOf("Very Low", "Low", "Normal", "High", "Urgent")
+    private val priorityValues = mapOf(
+        "Very Low" to 10000,
+        "Low" to 7500,
+        "Normal" to 5000,
+        "High" to 2500,
+        "Urgent" to 0
+    )
+
+    private var actionLabel: TextView? = null
     private var questNameInput: EditText? = null
     private var questDescInput: EditText? = null
     private var prioritySpinner: Spinner? = null
+    private var addQuestButton: Button? = null
     private var selectedPriorityValue: Int = 5000  // Default to "normal" priority (5000)
+    private var task: Task? = null
+
+    companion object {
+        private const val ARG_TASK = "task"
+
+        fun newInstance(task: Task?): AddQuestFragment {
+            val fragment = AddQuestFragment()
+            val args = Bundle()
+            args.putParcelable(ARG_TASK, task)
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            @Suppress("DEPRECATION")
+            task = it.getParcelable(ARG_TASK)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,20 +64,21 @@ class AddQuestFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_add_quest, container, false)
 
         // Access the button and EditTexts
+        actionLabel = view.findViewById(R.id.action_label)
         questNameInput = view.findViewById(R.id.quest_name_input)
         questDescInput = view.findViewById(R.id.quest_desc_input)
         prioritySpinner = view.findViewById(R.id.priority_spinner)
-        val addTaskButton: Button = view.findViewById(R.id.add_task_button)
+        addQuestButton = view.findViewById(R.id.add_task_button)
 
         // Set up the priority spinner
         setupPrioritySpinner()
 
+        // Sets the task if in edit mode
+        setTask()
+
         // Get the database instance
         val db = AppDatabase.getDatabase(requireContext())
         val taskDao = db.taskDao()
-
-        // Initially disable the "Add Task" button
-        addTaskButton.isEnabled = false
 
         // Add a TextWatcher to the questNameInput field
         questNameInput?.addTextChangedListener(object : TextWatcher {
@@ -53,7 +88,7 @@ class AddQuestFragment : Fragment() {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 // Enable the button only if the EditText is not empty
-                addTaskButton.isEnabled = !s.isNullOrEmpty()
+                addQuestButton?.isEnabled = !s.isNullOrEmpty()
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -62,19 +97,41 @@ class AddQuestFragment : Fragment() {
         })
 
         // Handle button click
-        addTaskButton.setOnClickListener {
+        addQuestButton?.setOnClickListener {
             val name = questNameInput?.text.toString()
             val description = questDescInput?.text.toString()
 
-            clear()
+            //Add task
+            if(task == null) {
+                clear()
+                // Handle adding the task or show a message
+                Toast.makeText(requireContext(), "Task Added: $name ", Toast.LENGTH_SHORT).show()
 
-            // Handle adding the task or show a message
-            Toast.makeText(requireContext(), "Task Added: $name ", Toast.LENGTH_SHORT).show()
+                lifecycleScope.launch {
+                    val task = Task(
+                        name = name,
+                        description = description,
+                        priority = selectedPriorityValue
+                    )
+                    Log.d("AddQuestFragment", "Added task: $task")
+                    taskDao.insert(task)
+                }
+            }
+            //Edit task
+            else{
+                Toast.makeText(requireContext(), "Task Added: $name ", Toast.LENGTH_SHORT).show()
 
-            lifecycleScope.launch {
-                val task = Task(name = name, description = description, priority = selectedPriorityValue)
-                Log.d("AddQuestFragment", "Added task: $task")
-                taskDao.insert(task)
+                lifecycleScope.launch {
+                    taskDao.delete(task!!)
+                    val task = Task(
+                        name = name,
+                        description = description,
+                        priority = selectedPriorityValue
+                    )
+                    Log.d("AddQuestFragment", "Edited task: $task")
+                    taskDao.insert(task)
+                    findNavController().popBackStack()
+                }
             }
         }
 
@@ -82,15 +139,6 @@ class AddQuestFragment : Fragment() {
     }
 
     private fun setupPrioritySpinner() {
-        val priorityOptions = arrayOf("Very Low", "Low", "Normal", "High", "Urgent")
-        val priorityValues = mapOf(
-            "Very Low" to 10000,
-            "Low" to 7500,
-            "Normal" to 5000,
-            "High" to 2500,
-            "Urgent" to 0
-        )
-
         // Set up the adapter for the spinner
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, priorityOptions)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -107,9 +155,40 @@ class AddQuestFragment : Fragment() {
                 // Do nothing
             }
         }
+    }
 
-        // Default selection to "Normal" priority
-        prioritySpinner?.setSelection(2)  // "Normal" is at index 2
+    private fun getPriorityIndex(value : Int?) : Int{
+        if(value != null) {
+            var closestPriorityStr = ""
+            var closestPriorityVal = Int.MAX_VALUE
+            for (entry in priorityValues) {
+                if (abs(value - entry.value) < abs(value - closestPriorityVal)) {
+                    closestPriorityVal = entry.value
+                    closestPriorityStr = entry.key
+                }
+            }
+            return priorityOptions.indexOf(closestPriorityStr)
+        }
+        else{
+            return 0
+        }
+    }
+
+    private fun setTask(){
+        addQuestButton?.isEnabled = task != null
+
+        if(task != null){
+            questNameInput?.setText(task!!.name)
+            questDescInput?.setText(task!!.description)
+            prioritySpinner?.setSelection(getPriorityIndex(task!!.priority))  // Reset to "Normal" priority
+            addQuestButton?.text = "Edit Quest"
+            actionLabel?.text = "Edit Quest Details"
+        }
+        else{
+            actionLabel?.text = "Add Quest Details"
+            addQuestButton?.text = "Add Quest"
+            clear()
+        }
     }
 
     private fun clear() {

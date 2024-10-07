@@ -194,7 +194,6 @@ class NotificationReceiver : BroadcastReceiver() {
         notificationManager.notify(1001, notificationBuilder.build())
     }
 
-
     fun BroadcastReceiver.doAsync(
         appScope: CoroutineScope,
         coroutineContext: CoroutineContext = EmptyCoroutineContext,

@@ -8,6 +8,9 @@ import android.view.View
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.LinearInterpolator
+import android.view.animation.RotateAnimation
 import android.widget.Button
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
@@ -81,6 +84,23 @@ class HomeFragment : Fragment() {
 
         scrollImage = binding.scrollImage
         completeButton = binding.completeQuestButton
+
+        // Find the rotating background image
+        val rotatingBackground = view?.findViewById<ImageView>(R.id.rotating_background)
+
+        // Create a rotation animation
+        val rotateAnimation = RotateAnimation(
+            0f, 360f,
+            Animation.RELATIVE_TO_SELF, 0.5f,
+            Animation.RELATIVE_TO_SELF, 0.5f
+        ).apply {
+            duration = 20000
+            repeatCount = Animation.INFINITE
+            interpolator = LinearInterpolator()
+        }
+
+        // Start the animation
+        rotatingBackground?.startAnimation(rotateAnimation)
 
         if(task != null) {
             Log.d("HomeFragment", "Current Task is ${task.name}")
