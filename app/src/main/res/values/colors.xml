@@ -9,6 +9,11 @@
     <color name="parchment_darker">#FFC7A966</color>
     <color name="parchment_dark">#FFEAC87B</color>
     <color name="parchment_light">#FFFDE4AD</color>
+    <color name="second_darkest">#FF7B5D3C</color>
+    <color name="second_darker">#FF6f5d71</color>
+    <color name="second_dark">#FFc09dc5</color>
+    <color name="second_light">#FFf2d4f7</color>
+    <color name="light_grey">#FFEEEEEE</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

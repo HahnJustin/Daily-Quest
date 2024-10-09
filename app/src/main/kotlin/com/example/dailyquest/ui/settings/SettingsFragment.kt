@@ -6,15 +6,17 @@ import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.example.dailyquest.R
-import com.example.dailyquest.database.Task
 import com.example.dailyquest.models.DataContainer
 import com.example.dailyquest.utils.JsonManager
-import java.time.LocalDateTime
 import java.time.LocalTime
-import android.content.BroadcastReceiver
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
+import androidx.preference.SeekBarPreference
 import com.example.dailyquest.NotificationReceiver
+import com.example.dailyquest.database.AppDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -25,7 +27,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         jsonManager = JsonManager(requireContext())
 
-        // Handle the time picker change
+        // Start Day Time
         val timePreference: Preference? = findPreference("start_day_time")
         timePreference?.setOnPreferenceChangeListener { preference, newValue ->
             // Save the new start time in your DataContainer
@@ -33,10 +35,39 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        // Handle the reset button
+        // Variance Pref
+        val variancePreference = findPreference<SeekBarPreference>("variance_intensity")
+        variancePreference?.setOnPreferenceChangeListener { preference, newValue ->
+            // newValue is an integer (0 - 20)
+            val floatValue = (newValue as Int) / 10.0f  // Convert the integer to a float (0.0 to 2.0)
+            preference.summary = "Current variance intensity: $floatValue"
+            true  // Return true to update the value
+        }
+
+        val initialValue = variancePreference?.value?.div(10.0f)
+        variancePreference?.summary = "Current variance intensity: $initialValue"
+
+        //DayOff Pref
+        val dayOffPreference = findPreference<SeekBarPreference>("percent_day_off")
+        dayOffPreference?.setOnPreferenceChangeListener { preference, newValue ->
+            // newValue is an integer (0 - 100)
+            preference.summary = "Current chance of a day off: $newValue%"
+            true  // Return true to update the value
+        }
+        val initialDayOffValue = dayOffPreference?.value
+        dayOffPreference?.summary = "Current chance of a day off: $initialDayOffValue%"
+
+        // Delete streak and etc pref
         val resetPreference: Preference? = findPreference("reset_data_container")
         resetPreference?.setOnPreferenceClickListener {
-            resetDataContainer()
+            showResetDataContainerDialog()
+            true
+        }
+
+        // Delete database
+        val deletePreference: Preference? = findPreference("delete_database")
+        deletePreference?.setOnPreferenceClickListener {
+            showDeleteDatabaseDialog()
             true
         }
     }
@@ -52,7 +83,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         triggerTaskMaintenance()
     }
 
-    private fun resetDataContainer() {
+    private fun showResetDataContainerDialog() {
         Log.d("SettingsFragment", "Deleting Data Container")
 
         // Show a confirmation dialog before deleting the task
@@ -67,6 +98,33 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 Toast.makeText(context, "Save data reset!", Toast.LENGTH_SHORT).show()
                 triggerTaskMaintenance()
                 dialog.dismiss()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                // User canceled, just dismiss the dialog
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+    private fun showDeleteDatabaseDialog() {
+        Log.d("SettingsFragment", "Deleting Data Container")
+
+        // Show a confirmation dialog before deleting the task
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Database")
+            .setMessage("Are you sure you want to delete all your quests?")
+            .setPositiveButton("Yes") { dialog, _ ->
+
+                val db = AppDatabase.getDatabase(requireContext())
+                val taskDao = db.taskDao()
+
+                CoroutineScope(Dispatchers.Default).launch {
+                    taskDao.deleteAllTasks()
+                    triggerTaskMaintenance()
+                    dialog.dismiss()
+                }
+                Toast.makeText(context, "Database deleted!", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("No") { dialog, _ ->
                 // User canceled, just dismiss the dialog

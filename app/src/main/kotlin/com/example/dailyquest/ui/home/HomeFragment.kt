@@ -130,7 +130,7 @@ class HomeFragment : Fragment() {
             nameText.text = "No Task Today"
             descText.text = "Enjoy your time off!"
             completeButton!!.visibility = View.GONE
-            scrollImage?.setImageResource(R.drawable.quick_desert_island2)
+            scrollImage?.setImageResource(R.drawable.quick_desert_island3)
         }
 
         // Safely cast the activity to MainActivity and call the showFab method

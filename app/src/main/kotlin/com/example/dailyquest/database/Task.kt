@@ -12,6 +12,7 @@ data class Task(
     val description: String,
     val dueDate: String? = null,
     val priority: Int? = null,
+    var priorityShift: Int = 0,
     var isCompleted: Boolean = false,
     var completedDate: String? = null
 ) : Parcelable {
@@ -21,6 +22,7 @@ data class Task(
         parcel.readString().toString(),
         parcel.readString(),
         parcel.readValue(Int::class.java.classLoader) as? Int,
+        parcel.readInt(),
         parcel.readByte() != 0.toByte(),
         parcel.readString()
     ) {
@@ -28,10 +30,11 @@ data class Task(
 
     override fun toString() : String{
         return "[DataContainer]: $name \n" +
-                "  Description: $description.toString() \n" +
+                "  Description: $description \n" +
                 "  DueDate: $dueDate \n" +
                 "  Priority: $priority \n" +
-                "  IsCompleted: $completedDate + \n" +
+                "  PriorityShift: $priorityShift \n" +
+                "  IsCompleted: $isCompleted \n" +
                 "  CompletedDate: $completedDate \n"
     }
 
@@ -41,6 +44,7 @@ data class Task(
         parcel.writeString(description)
         parcel.writeString(dueDate)
         parcel.writeValue(priority)
+        parcel.writeInt(priorityShift)
         parcel.writeByte(if (isCompleted) 1 else 0)
         parcel.writeString(completedDate)
     }

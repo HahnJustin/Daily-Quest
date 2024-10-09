@@ -1,16 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Preference to pick a time -->
+    <!-- Preference for day start time -->
     <com.example.dailyquest.ui.settings.TimePickerPreference
         android:key="start_day_time"
         android:title="Start Day Time"
         android:summary="Set the start time for the day"
         android:defaultValue="07:00" />
 
-    <!-- Preference for resetting the data -->
+    <!-- Preference for variance intensity -->
+    <SeekBarPreference
+        android:key="variance_intensity"
+        android:title="Random Task Intensity"
+        android:summary="Adjust the random task priority intensity from 0.0 to 2.0"
+        android:defaultValue="10"
+        android:min="0"
+        android:max="20" />
+
+    <!-- Preference for variance intensity -->
+    <SeekBarPreference
+        android:key="percent_day_off"
+        android:title="Percent Chance of Day Off"
+        android:summary="Set the percent chance (0-100%) for a day off"
+        android:defaultValue="0"
+        android:min="0"
+        android:max="100" />
+
+    <!-- Preference for resetting the save data -->
     <Preference
         android:key="reset_data_container"
-        android:title="Reset Data"
-        android:summary="Delete the current data and start fresh" />
+        android:title="Reset Streak"
+        android:summary="Delete the current streak and start fresh" />
+
+    <!-- Preference for deleting data base -->
+    <Preference
+        android:key="delete_database"
+        android:title="Delete Database"
+        android:summary="Delete the current database and start fresh" />
+
 </androidx.preference.PreferenceScreen>

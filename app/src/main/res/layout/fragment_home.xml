@@ -14,6 +14,13 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="top|center_horizontal"
+            android:layout_centerHorizontal="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="top|center_horizontal"
             android:layout_centerHorizontal="true"
             android:background="@color/parchment_dark">
 
@@ -54,15 +61,16 @@
             <TextView
                 android:id="@+id/quest_name_label"
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_marginBottom="8dp"
+                android:layout_height="88dp"
                 android:background="@drawable/long_wood"
                 android:fontFamily="@font/cloister_black"
                 android:gravity="center"
-                android:text="Task Name"
-                android:textAlignment="center"
+                android:text="TASK NAME"
+                android:lineSpacingExtra="-8dp"
+                android:lineSpacingMultiplier="0.8"
+
                 android:textColor="@color/white"
-                android:textSize="32sp" />
+                android:textSize="48sp" />
 
             <TextView
                 android:id="@+id/quest_desc_label"
@@ -71,16 +79,15 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:fontFamily="@font/silkscreen"
+                android:fontFamily="sans-serif"
                 android:paddingBottom="12dp"
                 android:text="Task Description"
                 android:textAlignment="center"
-                android:textSize="20sp"
-                android:textColor="@color/white" />
+                android:textColor="@color/parchment_darkest"
+                android:textSize="20sp" />
         </LinearLayout>
 
-
-        <Button
+            <Button
             android:id="@+id/complete_quest_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -88,6 +95,7 @@
             android:layout_centerInParent="true"
             android:layout_marginTop="32dp"
             android:layout_gravity="center" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

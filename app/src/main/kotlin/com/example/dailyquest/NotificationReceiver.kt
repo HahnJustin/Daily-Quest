@@ -12,6 +12,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.preference.PreferenceManager
 import com.example.dailyquest.database.AppDatabase
 import com.example.dailyquest.models.DataContainer
 import com.example.dailyquest.utils.JsonManager
@@ -23,6 +24,7 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlin.random.Random
 
 class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -54,9 +56,7 @@ class NotificationReceiver : BroadcastReceiver() {
         var nextNotificationTime = dataContainer.startDayTime.atDate(LocalDate.now().minusDays(1));
         if(dataContainer.taskGeneratedTime != null) {
             nextNotificationTime = LocalDateTime.of(
-                //TODO: revert back to this, this is temporary for testing
-                // dataContainer.taskGeneratedTime!!.plusDays(1).toLocalDate(),
-                LocalDateTime.now().toLocalDate(),
+                dataContainer.taskGeneratedTime!!.plusDays(1).toLocalDate(),
                 dataContainer.startDayTime
             )
         }
@@ -74,7 +74,6 @@ class NotificationReceiver : BroadcastReceiver() {
             // Schedule a notification for the calculated time
             scheduleExactNotification(context, nextNotificationTime)
         }
-
     }
 
     suspend fun sendTaskNotification(context: Context, dataContainer: DataContainer) {
@@ -85,10 +84,34 @@ class NotificationReceiver : BroadcastReceiver() {
         val taskDao = db.taskDao()
         val tasks =  taskDao.getUncompletedTasks()
 
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val dayOffPercent = preferences.getInt("percent_day_off", 50)
         //No Tasks
-        if(tasks.isEmpty()) return
+        if(tasks.isEmpty() || (dayOffPercent > Random.Default.nextInt(0,100))){
+            // Update the DataContainer for the new task
+            val newDataContainer = dataContainer.copy(
+                startDayTime = dataContainer.startDayTime,
+                currentTask = null,
+                lastDateLapsed = dataContainer.lastDateLapsed
+            )
 
-        val newTask = tasks.get(0)
+            newDataContainer.setNewGeneratedTime()
+            streakManagement(dataContainer, newDataContainer)
+            saveDataContainer(newDataContainer, context)
+            return
+        }
+
+        val varianceIntensity = preferences.getInt("variance_intensity", 10) / 10.0f  // Convert to float
+
+        for(task in tasks){
+            task.priorityShift = Random.Default.nextInt(0,
+                (2500 * varianceIntensity).toInt()
+            )
+        }
+        val sortedTasks = tasks.sortedBy { (it.priority ?: 0) + it.priorityShift }
+
+        val newTask = sortedTasks.get(0)
+        newTask.priorityShift = 0
 
         // Send notification about the new task
         val notificationManager =
@@ -121,17 +144,8 @@ class NotificationReceiver : BroadcastReceiver() {
         )
 
         newDataContainer.setNewGeneratedTime()
-
-        //Define if the task was completed, and streak should be reset
-        if(dataContainer.currentTask != null && !dataContainer.currentTask!!.isCompleted){
-            newDataContainer.setNewRelapseTime()
-            Log.d("NotificationReceiver", "Reset Relapse Time")
-        }
-
-        // Save new DataContainer
-        val jsonManager = JsonManager(context)
-        jsonManager.saveData(newDataContainer)
-        Log.d("NotificationReceiver", "Saved: $newDataContainer")
+        streakManagement(dataContainer, newDataContainer)
+        saveDataContainer(newDataContainer, context)
     }
 
     fun scheduleExactNotification(context: Context, notificationTime: LocalDateTime) {
@@ -201,5 +215,19 @@ class NotificationReceiver : BroadcastReceiver() {
     ){
         val pendingResult = goAsync()
         appScope.launch(coroutineContext) { block() }.invokeOnCompletion { pendingResult?.finish() }
+    }
+
+    private fun streakManagement(dataContainer: DataContainer, newDataContainer : DataContainer){
+        //Define if the task was completed, and streak should be reset
+        if(dataContainer.currentTask != null && !dataContainer.currentTask!!.isCompleted){
+            newDataContainer.setNewRelapseTime()
+            Log.d("NotificationReceiver", "Reset Relapse Time")
+        }
+    }
+
+    private fun saveDataContainer(newDataContainer: DataContainer, context: Context){
+        val jsonManager = JsonManager(context)
+        jsonManager.saveData(newDataContainer)
+        Log.d("NotificationReceiver", "Saved: $newDataContainer")
     }
 }

@@ -2,40 +2,106 @@ package com.example.dailyquest.ui.databaseviewer
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dailyquest.R
 import com.example.dailyquest.database.Task
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 
 class TaskAdapter(
     private val tasks: List<Task>,
     private val onEditClick: (Task) -> Unit,
     private val onDeleteClick: (Task) -> Unit
-) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    inner class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val taskName: TextView = view.findViewById(R.id.taskName)
-        val taskDescription: TextView = view.findViewById(R.id.taskDescription)
-        val editButton: ImageButton = view.findViewById(R.id.editButton)
-        val deleteButton: ImageButton = view.findViewById(R.id.deleteButton)
+    companion object {
+        private const val VIEW_TYPE_COMPLETED = 1
+        private const val VIEW_TYPE_UNCOMPLETED = 2
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_task, parent, false)
-        return TaskViewHolder(view)
+    // Determine the view type based on whether the task is completed
+    override fun getItemViewType(position: Int): Int {
+        return if (tasks[position].isCompleted) VIEW_TYPE_COMPLETED else VIEW_TYPE_UNCOMPLETED
     }
 
-    override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
+    // Define two different ViewHolders for completed and uncompleted tasks
+    inner class CompletedTaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val taskName: TextView = view.findViewById(R.id.task_name)
+        val taskDescription: TextView = view.findViewById(R.id.task_description)
+        val completedTimeText: TextView = view.findViewById(R.id.completed_time)
+        val deleteButton: ImageButton = view.findViewById(R.id.delete_button)
+
+        fun bind(task: Task) {
+            taskName.text = task.name
+            taskDescription.text = task.description
+            deleteButton.setOnClickListener { onDeleteClick(task) }
+
+            if(task.completedDate != null) {
+                val time = LocalDateTime.parse(task.completedDate)
+                val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+                completedTimeText.text = time.format(dateTimeFormatter)
+            }
+            else{
+                completedTimeText.text = ""
+            }
+
+            if(task.description.isNullOrEmpty()){
+                taskDescription.visibility = GONE
+            }
+            else{
+                taskDescription.visibility = VISIBLE
+            }
+        }
+    }
+
+    inner class UncompletedTaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val taskName: TextView = view.findViewById(R.id.task_name)
+        val taskDescription: TextView = view.findViewById(R.id.task_description)
+        val editButton: ImageButton = view.findViewById(R.id.edit_button)
+        val deleteButton: ImageButton = view.findViewById(R.id.delete_button)
+
+        fun bind(task: Task) {
+            taskName.text = task.name
+            taskDescription.text = task.description
+            editButton.setOnClickListener { onEditClick(task) }
+            deleteButton.setOnClickListener { onDeleteClick(task) }
+
+            if(task.description.isNullOrEmpty()){
+                taskDescription.visibility = GONE
+            }
+            else{
+                taskDescription.visibility = VISIBLE
+            }
+        }
+    }
+
+    // Inflate the appropriate layout depending on the task's completion status
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == VIEW_TYPE_COMPLETED) {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.completed_task, parent, false)
+            CompletedTaskViewHolder(view)
+        } else {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_task, parent, false)
+            UncompletedTaskViewHolder(view)
+        }
+    }
+
+    // Bind the data to the appropriate ViewHolder
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val task = tasks[position]
-        holder.taskName.text = task.name
-        holder.taskDescription.text = task.description
-
-        holder.editButton.setOnClickListener { onEditClick(task) }
-        holder.deleteButton.setOnClickListener { onDeleteClick(task) }
+        if (holder is CompletedTaskViewHolder) {
+            holder.bind(task)
+        } else if (holder is UncompletedTaskViewHolder) {
+            holder.bind(task)
+        }
     }
 
     override fun getItemCount(): Int {

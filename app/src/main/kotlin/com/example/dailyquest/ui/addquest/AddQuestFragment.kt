@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.dailyquest.R
 import com.example.dailyquest.database.AppDatabase
 import com.example.dailyquest.database.Task
+import com.example.dailyquest.utils.JsonManager
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -119,17 +120,33 @@ class AddQuestFragment : Fragment() {
             }
             //Edit task
             else{
-                Toast.makeText(requireContext(), "Task Added: $name ", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Task Edited: $name ", Toast.LENGTH_SHORT).show()
 
                 lifecycleScope.launch {
                     taskDao.delete(task!!)
-                    val task = Task(
+
+                    val editedTask = Task(
+                        id = task!!.id,
                         name = name,
                         description = description,
                         priority = selectedPriorityValue
                     )
-                    Log.d("AddQuestFragment", "Edited task: $task")
-                    taskDao.insert(task)
+                    Log.d("AddQuestFragment", "Edited task: $editedTask")
+                    taskDao.insert(editedTask)
+
+                    val jsonManager = JsonManager(requireContext())
+                    val dataContainer = jsonManager.loadData()
+
+                    val containerTask = dataContainer?.currentTask
+                    Log.d("AddQuestFragment", "Current Home task: $task")
+                    Log.d("AddQuestFragment", "Current Container task: $containerTask")
+
+                    if(containerTask == task) {  // This compares the content of the tasks
+                        dataContainer?.currentTask = editedTask
+                        jsonManager.saveData(dataContainer!!)
+                        Log.d("AddQuestFragment", "Tasks are the same")
+                    }
+
                     findNavController().popBackStack()
                 }
             }

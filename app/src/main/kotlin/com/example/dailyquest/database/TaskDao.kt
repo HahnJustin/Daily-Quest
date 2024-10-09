@@ -24,4 +24,8 @@ interface TaskDao {
 
     @Query("SELECT * FROM tasks WHERE isCompleted = 1")
     suspend fun getCompletedTasks(): List<Task>
+
+    // Add this function to delete all tasks from the table
+    @Query("DELETE FROM tasks")
+    suspend fun deleteAllTasks()
 }
