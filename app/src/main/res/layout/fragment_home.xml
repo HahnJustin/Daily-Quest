@@ -144,14 +144,33 @@
                         android:textSize="16sp" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/button_layout"
+                    android:layout_marginTop="32dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="top|center_horizontal"
+                    android:layout_centerHorizontal="true">
+
                 <Button
                     android:id="@+id/complete_quest_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Complete QUEST!"
                     android:layout_centerInParent="true"
-                    android:layout_marginTop="32dp"
+
                     android:layout_gravity="center" />
+
+                <Button
+                    android:id="@+id/extra_action_button"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_gravity="right"
+                    android:layout_marginLeft="4dp"
+                    android:text="..." />
+                </LinearLayout>
             </LinearLayout>
         </RelativeLayout>
 

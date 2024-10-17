@@ -1,6 +1,7 @@
 package com.example.dailyquest.ui.home
 
 import RepeatingNinePatchDrawable
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.media.Image
 import android.os.Bundle
@@ -18,17 +19,21 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.PreferenceManager
 import com.example.dailyquest.MainActivity
 import com.example.dailyquest.R
 import com.example.dailyquest.database.AppDatabase
 import com.example.dailyquest.database.Task
 import com.example.dailyquest.databinding.FragmentHomeBinding
+import com.example.dailyquest.models.DataContainer
 import com.example.dailyquest.utils.JsonManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
@@ -41,6 +46,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var completeButton : Button? = null
+    private var extraActionButton : Button? = null
     private var scrollImage : ImageView? = null
     private var task : Task? = null
 
@@ -77,8 +83,25 @@ class HomeFragment : Fragment() {
         super.onStart()
 
         val jsonManager = JsonManager(requireContext())
+        val dataContainer = jsonManager.loadData()
+        val task : Task? = dataContainer?.currentTask
+
         val db = AppDatabase.getDatabase(requireContext())
         val taskDao = db.taskDao()
+
+        //Extra Button
+        extraActionButton = binding.root.findViewById(R.id.extra_action_button)
+        extraActionButton?.setOnClickListener {
+            if (task?.isCompleted == true) {
+                showCompletedDialog(dataContainer)
+            } else if (task != null) {
+                showUncompletedDialog(dataContainer)
+            }
+            else{
+                extraActionButton?.visibility = GONE
+            }
+        }
+
 
         //Streak Related
         val streakText = binding.streakLabel
@@ -100,11 +123,8 @@ class HomeFragment : Fragment() {
         }
 
         //Task Related
-
         val nameText = binding.questNameLabel
         val descText = binding.questDescLabel
-
-        val task : Task? = jsonManager.loadData()?.currentTask
 
         scrollImage = binding.scrollImage
         completeButton = binding.completeQuestButton
@@ -133,7 +153,6 @@ class HomeFragment : Fragment() {
 
             completeButton?.setOnClickListener {
                 toggleCompleted(true)
-                val dataContainer = jsonManager.loadData()
 
                 CoroutineScope(Dispatchers.IO).launch {
                     taskDao.delete(task)
@@ -141,13 +160,17 @@ class HomeFragment : Fragment() {
                     task.completedDate = LocalDateTime.now().toString()
                     taskDao.insert(task)
 
-                    if(dataContainer != null) {
-                        dataContainer.currentTask = task
-                        jsonManager.saveData(dataContainer)
-                    }
+                    dataContainer.currentTask = task
+                    jsonManager.saveData(dataContainer)
                 }
             }
-            toggleCompleted(task.isCompleted)
+
+            if(dataContainer.delayedTask){
+                toggleDelayedUI()
+            }
+            else {
+                toggleCompleted(task.isCompleted)
+            }
         }
         else{
             Log.d("HomeFragment", "Current Task is null")
@@ -173,6 +196,16 @@ class HomeFragment : Fragment() {
         completeButton?.visibility = View.VISIBLE
     }
 
+    fun toggleDelayedUI(){
+        scrollImage?.setImageResource(R.drawable.scroll_art)
+        task?.isCompleted = true
+        completeButton?.text = "FAILURE FOR TODAY"
+        completeButton?.isEnabled = false;
+
+        completeButton?.visibility = View.VISIBLE
+        extraActionButton?.visibility = View.GONE
+    }
+
     fun getStreakResID( streak : Int) : Int {
         when (streak) {
             0 -> {return -1}
@@ -196,5 +229,81 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun showUncompletedDialog(dataContainer: DataContainer) {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setMessage("Have you tried the best physically and mentally you can, but still have failed to accomplish '${dataContainer.currentTask!!.name}'. Would you like to delay this quest?")
+            .setCancelable(false)
+            .setPositiveButton("Yes") { _, _ ->
+                delayQuest(dataContainer) // Call the function for delaying the quest
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        val alert = dialogBuilder.create()
+        alert.setTitle("Quest Uncompleted")
+        alert.show()
+    }
+
+    private fun showCompletedDialog(dataContainer: DataContainer) {
+        val dialogBuilder = AlertDialog.Builder(requireContext())
+        dialogBuilder.setMessage("Have you actually not finished '${dataContainer.currentTask!!.name}'?")
+            .setCancelable(false)
+            .setPositiveButton("Yes") { _, _ ->
+                handleNotFinishedQuest(dataContainer) // Call the function for handling not finished quest
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        val alert = dialogBuilder.create()
+        alert.setTitle("Quest Completed")
+        alert.show()
+    }
+
+    private fun delayQuest(dataContainer : DataContainer) {
+        CoroutineScope(Dispatchers.Default).launch {
+            val db = AppDatabase.getDatabase(requireContext())
+            val taskDao = db.taskDao()
+            taskDao.delete(dataContainer.currentTask!!)
+
+            val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+            val decreaseIntensity = preferences.getInt("priority_decrease_intensity", 10)
+
+            dataContainer.currentTask!!.priority =
+                dataContainer.currentTask!!.priority?.plus(250 * decreaseIntensity)
+            taskDao.insert(dataContainer.currentTask!!)
+
+            dataContainer.delayedTask = true
+
+            saveDataContainer(dataContainer)
+            Log.d("HomeFragment", "Delaying Task: ${dataContainer.currentTask}")
+        }
+
+        toggleDelayedUI()
+    }
+
+    private fun handleNotFinishedQuest(dataContainer : DataContainer) {
+        CoroutineScope(Dispatchers.Default).launch {
+            val db = AppDatabase.getDatabase(requireContext())
+            val taskDao = db.taskDao()
+            taskDao.delete(dataContainer.currentTask!!)
+
+            dataContainer.currentTask!!.isCompleted = false
+            taskDao.insert(dataContainer.currentTask!!)
+
+            saveDataContainer(dataContainer)
+
+            Log.d("HomeFragment", "Reverse Completed Task: ${dataContainer.currentTask}")
+        }
+        toggleCompleted(false)
+    }
+
+    private fun saveDataContainer(newDataContainer: DataContainer){
+        val jsonManager = JsonManager(requireContext())
+        jsonManager.saveData(newDataContainer)
+        Log.d("HomeFragment", "Saved: $newDataContainer")
     }
 }

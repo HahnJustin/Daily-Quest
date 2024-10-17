@@ -1,5 +1,7 @@
 package com.example.dailyquest.ui.addquest
 
+import RepeatingNinePatchDrawable
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -30,7 +32,7 @@ class AddQuestFragment : Fragment() {
         "Urgent" to 0
     )
 
-    private var actionLabel: TextView? = null
+    //private var actionLabel: TextView? = null
     private var questNameInput: EditText? = null
     private var questDescInput: EditText? = null
     private var prioritySpinner: Spinner? = null
@@ -65,8 +67,13 @@ class AddQuestFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_add_quest, container, false)
 
+        val editLayout  = view.findViewById<LinearLayout>(R.id.data_entrance_layout)
+        val descBitmap = BitmapFactory.decodeResource(resources, R.drawable.wood_canvas_ui)
+        val descDrawable = RepeatingNinePatchDrawable(descBitmap, 85, 85)
+        editLayout.background = descDrawable
+
         // Access the button and EditTexts
-        actionLabel = view.findViewById(R.id.action_label)
+        //actionLabel = view.findViewById(R.id.action_label)
         questNameInput = view.findViewById(R.id.quest_name_input)
         questDescInput = view.findViewById(R.id.quest_desc_input)
         prioritySpinner = view.findViewById(R.id.priority_spinner)
@@ -210,10 +217,10 @@ class AddQuestFragment : Fragment() {
             questDescInput?.setText(task!!.description)
             prioritySpinner?.setSelection(getPriorityIndex(task!!.priority))  // Reset to "Normal" priority
             addQuestButton?.text = "Edit Quest"
-            actionLabel?.text = "Edit Quest"
+            //actionLabel?.text = "Edit Quest"
         }
         else{
-            actionLabel?.text = "Add Quest"
+            //actionLabel?.text = "Add Quest"
             addQuestButton?.text = "Add Quest"
             clear()
         }

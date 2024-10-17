@@ -14,7 +14,7 @@
     <fragment
         android:id="@+id/nav_add_quest"
         android:name="com.example.dailyquest.ui.addquest.AddQuestFragment"
-        android:label="Add Quest"
+        android:label="Add/Edit Quest"
         tools:layout="@layout/fragment_add_quest">
         <argument
             android:name="task"

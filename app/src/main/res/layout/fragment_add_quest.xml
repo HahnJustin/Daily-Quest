@@ -4,37 +4,59 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="16dp">
+>
 
-    <TextView
-        android:id="@+id/action_label"
-        android:layout_width="297dp"
-        android:layout_height="49dp"
-        android:layout_marginBottom="8dp"
-        android:gravity="center"
-        android:text="Enter Task Details"
-        android:textAlignment="center"
-        android:textSize="32sp" />
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp">
 
-    <EditText
-        android:id="@+id/quest_name_input"
+        <ImageView
+            android:id="@+id/task_wood"
+            android:layout_width="576dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:contentDescription="Wood Panel"
+            android:padding="8dp"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+
+            android:src="@drawable/thin_wood_plank" />
+
+        <EditText
+            android:id="@+id/quest_name_input"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="16dp"
+            android:editTextColor="@color/white"
+            android:hint="Enter Quest Name"
+            android:gravity="center"
+            android:inputType="text"
+            android:maxLength="50"
+            android:padding="16dp"
+            android:textColorHint="@color/white"
+            android:textSize="24sp" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/data_entrance_layout"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginBottom="16dp"
-        android:hint="Enter Name"
-        android:inputType="text"
-        android:textSize="24sp"
-        android:maxLength="50"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="18dp">
 
     <EditText
         android:id="@+id/quest_desc_input"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="180dp"
         android:layout_marginBottom="16dp"
         android:hint="Enter Description"
         android:inputType="textMultiLine"
         android:gravity="top|start"
         android:scrollbars="vertical"
+        android:backgroundTint="?attr/colorPrimary"
+        android:background="@drawable/rounded_bg"
+
         android:overScrollMode="ifContentScrolls"
         android:maxLength="250" />
 
@@ -42,7 +64,9 @@
         android:id="@+id/priority_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="?attr/colorPrimary"
+        android:background="@drawable/rounded_bg"/>
 
     <Button
         android:id="@+id/add_task_button"
@@ -51,5 +75,7 @@
         android:text="Add Task"
         android:layout_marginTop="16dp"
         android:layout_gravity="center" />
+
+    </LinearLayout>
 
 </LinearLayout>

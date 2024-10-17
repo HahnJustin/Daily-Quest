@@ -95,7 +95,8 @@ class NotificationReceiver : BroadcastReceiver() {
             val newDataContainer = dataContainer.copy(
                 startDayTime = dataContainer.startDayTime,
                 currentTask = null,
-                lastDateLapsed = dataContainer.lastDateLapsed
+                lastDateLapsed = dataContainer.lastDateLapsed,
+                delayedTask = false
             )
 
             newDataContainer.setNewGeneratedTime()
@@ -143,7 +144,8 @@ class NotificationReceiver : BroadcastReceiver() {
             startDayTime = dataContainer.startDayTime,
             currentTask = newTask,
             taskGeneratedTime = null,
-            lastDateLapsed = dataContainer.lastDateLapsed
+            lastDateLapsed = dataContainer.lastDateLapsed,
+            delayedTask = false
         )
         newDataContainer.setNewGeneratedTime()
         streakManagement(dataContainer, newDataContainer, context)
