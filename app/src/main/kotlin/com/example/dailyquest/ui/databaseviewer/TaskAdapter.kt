@@ -6,6 +6,7 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dailyquest.R
@@ -36,11 +37,15 @@ class TaskAdapter(
         val taskDescription: TextView = view.findViewById(R.id.task_description)
         val completedTimeText: TextView = view.findViewById(R.id.completed_time)
         val deleteButton: ImageButton = view.findViewById(R.id.delete_button)
+        val priorityImage: ImageView = view.findViewById(R.id.priority_image)
 
         fun bind(task: Task) {
             taskName.text = task.name
             taskDescription.text = task.description
             deleteButton.setOnClickListener { onDeleteClick(task) }
+
+            val priorityResId = getPriorityResID(task.priority!!)
+            priorityImage.setImageResource(priorityResId)
 
             if(task.completedDate != null) {
                 val time = LocalDateTime.parse(task.completedDate)
@@ -65,12 +70,16 @@ class TaskAdapter(
         val taskDescription: TextView = view.findViewById(R.id.task_description)
         val editButton: ImageButton = view.findViewById(R.id.edit_button)
         val deleteButton: ImageButton = view.findViewById(R.id.delete_button)
+        val priorityImage: ImageView = view.findViewById(R.id.priority_image)
 
         fun bind(task: Task) {
             taskName.text = task.name
             taskDescription.text = task.description
             editButton.setOnClickListener { onEditClick(task) }
             deleteButton.setOnClickListener { onDeleteClick(task) }
+
+            val priorityResId = getPriorityResID(task.priority!!)
+            priorityImage.setImageResource(priorityResId)
 
             if(task.description.isNullOrEmpty()){
                 taskDescription.visibility = GONE
@@ -106,5 +115,16 @@ class TaskAdapter(
 
     override fun getItemCount(): Int {
         return tasks.size
+    }
+
+    fun getPriorityResID( priority : Int) : Int {
+        when (priority) {
+            0 -> {return R.drawable.urgent_priority_icon}
+            in 1..2500 -> {return R.drawable.high_priority_icon}
+            in 2501..5000 -> {return R.drawable.normal_priority_icon}
+            in 5001..7500 -> {return R.drawable.low_priority_icon}
+            in 7501..1000000 -> {return R.drawable.very_low_priority_icon}
+            else -> {return R.drawable.empty_x16}
+        }
     }
 }

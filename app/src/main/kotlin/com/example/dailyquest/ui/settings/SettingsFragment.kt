@@ -12,6 +12,7 @@ import java.time.LocalTime
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.preference.SeekBarPreference
+import com.example.dailyquest.MainActivity
 import com.example.dailyquest.NotificationReceiver
 import com.example.dailyquest.database.AppDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +23,16 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     var jsonManager : JsonManager? = null
 
+    override fun onStart() {
+        super.onStart()
+        (activity as? MainActivity)?.hideFab()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        (activity as? MainActivity)?.showFab()
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
 
@@ -29,7 +40,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         // Start Day Time
         val timePreference: Preference? = findPreference("start_day_time")
-        timePreference?.setOnPreferenceChangeListener { preference, newValue ->
+        timePreference?.setOnPreferenceChangeListener { _, newValue ->
             // Save the new start time in your DataContainer
             saveStartDayTime(newValue as String)
             true
@@ -56,6 +67,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         val initialDayOffValue = dayOffPreference?.value
         dayOffPreference?.summary = "Current chance of a day off: $initialDayOffValue%"
+
+        //MissedPriority Pref
+        val decreasePreference = findPreference<SeekBarPreference>("priority_decrease_intensity")
+        decreasePreference?.setOnPreferenceChangeListener { preference, newValue ->
+            // newValue is an integer (0 - 100)
+            val floatValue = (newValue as Int) / 10.0f  // Convert the integer to a float (0.0 to 2.0)
+            preference.summary = "Priority levels lost when quest is missed: $floatValue"
+            true  // Return true to update the value
+        }
+        val decreaseValue = decreasePreference?.value?.div(10.0f)
+        decreasePreference?.summary = "Priority levels lost when quest is missed: $decreaseValue"
 
         // Delete streak and etc pref
         val resetPreference: Preference? = findPreference("reset_data_container")

@@ -1,10 +1,13 @@
 package com.example.dailyquest.ui.home
 
+import RepeatingNinePatchDrawable
+import android.graphics.BitmapFactory
 import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
@@ -13,6 +16,8 @@ import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -44,11 +49,26 @@ class HomeFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
+        ViewModelProvider(this)[HomeViewModel::class.java]
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        //Set Repeatable Drawable Border
+        val imageView = root.findViewById<ImageView>(R.id.test_image)
+        val bitmap = BitmapFactory.decodeResource(resources, R.drawable.split_wood_ui)
+        val repeatingDrawable = RepeatingNinePatchDrawable(bitmap, 168, 128)
+        imageView.background = repeatingDrawable
+
+        val backgroundView = root.findViewById<ImageView>(R.id.background_corners)
+        val backgroundBitmap = BitmapFactory.decodeResource(resources, R.drawable.simple_but_fancy_ui_corners)
+        val backgroundDrawable = RepeatingNinePatchDrawable(backgroundBitmap, 100, 28)
+        backgroundView.background = backgroundDrawable
+
+        val descView = root.findViewById<TextView>(R.id.quest_desc_label)
+        val descBitmap = BitmapFactory.decodeResource(resources, R.drawable.wood_canvas_ui)
+        val descDrawable = RepeatingNinePatchDrawable(descBitmap, 85, 85)
+        descView.background = descDrawable
 
         return root
     }
@@ -63,9 +83,7 @@ class HomeFragment : Fragment() {
         //Streak Related
         val streakText = binding.streakLabel
         val streakImage : ImageView = binding.streakImage
-
-        var streak = 0
-        streak = (activity as? MainActivity)?.getStreak()!!
+        val streak: Int = (activity as? MainActivity)?.getStreak()!!
 
         streakText.text = buildString {
             append("Streak: ")
@@ -73,7 +91,13 @@ class HomeFragment : Fragment() {
         }
 
         val streakResId = getStreakResID(streak)
-        if(streakResId >= 0) streakImage.setImageResource(getStreakResID(streak))
+        if(streakResId >= 0) {
+            streakImage.setImageResource(streakResId)
+            streakImage.visibility = VISIBLE
+        }
+        else{
+            streakImage.visibility = GONE
+        }
 
         //Task Related
 
@@ -132,9 +156,6 @@ class HomeFragment : Fragment() {
             completeButton!!.visibility = View.GONE
             scrollImage?.setImageResource(R.drawable.quick_desert_island3)
         }
-
-        // Safely cast the activity to MainActivity and call the showFab method
-        (activity as? MainActivity)?.showFab()
     }
 
     fun toggleCompleted(completed : Boolean){

@@ -1,18 +1,21 @@
 package com.example.dailyquest
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.Menu
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationManagerCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -29,13 +32,12 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var jsonManager: JsonManager
-    private var currentData : DataContainer? = null
+    private var currentData: DataContainer? = null
     private var streak: Int = 0
 
     private val _notificationReceiver: BroadcastReceiver = NotificationReceiver()
@@ -44,7 +46,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //Load and Maintain Json Data
+        // Request permissions at the start
+        requestNotificationAndAlarmPermissions()
+
+        // Load and maintain JSON data
         jsonDataMaintenance(this)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -55,22 +60,15 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
 
         binding.appBarMain.fab.setOnClickListener {
-            // view ->
-            //Snackbar.make(view, "GAMER GAMER GAMER", Snackbar.LENGTH_LONG)
-            //    .setAction("Action", null)
-            //    .setAnchorView(R.id.fab).show()
-
             binding.appBarMain.fab.hide()
 
             // Navigate to the add quest fragment
             navController.navigate(R.id.nav_add_quest)
-
         }
+
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
 
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home, R.id.nav_settings, R.id.nav_data_viewer
@@ -80,8 +78,50 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
     }
 
+    // Function to request notification and exact alarm permissions
+    private fun requestNotificationAndAlarmPermissions() {
+        val notificationManager = NotificationManagerCompat.from(this)
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        // Check if notification permission is granted
+        if (!notificationManager.areNotificationsEnabled()) {
+            showPermissionDialog(
+                "Notification Permission",
+                "This app needs notification permission to send you task reminders. It won't work without it",
+                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                    putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                }
+            )
+        }
+
+        // Check if exact alarm permission is required and granted (for API 31+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (!alarmManager.canScheduleExactAlarms()) {
+                showPermissionDialog(
+                    "Exact Alarm Permission",
+                    "This app needs exact alarm permission to schedule task reminders. It won't work without it",
+                    Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+                )
+            }
+        }
+    }
+
+    // Helper function to show a permission dialog
+    private fun showPermissionDialog(title: String, message: String, intent: Intent) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("Allow") { dialog, _ ->
+                startActivity(intent)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Deny") { dialog, _ ->
+                dialog.dismiss()
+            }
+        builder.create().show()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
         return true
     }
@@ -91,26 +131,16 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    fun showFab() {
-        binding.appBarMain.fab.show()
-    }
-
-    fun hideFab() {
-        binding.appBarMain.fab.hide()
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
-    fun jsonDataMaintenance(context: Context){
+    fun jsonDataMaintenance(context: Context) {
         jsonManager = JsonManager(context)
-
         currentData = jsonManager.loadData()
 
-        var relapseTime : LocalDateTime
+        var relapseTime: LocalDateTime
         if (currentData != null) {
-            relapseTime = currentData!!.lastDateLapsed;
-            println("Last Date Lapsed: ${relapseTime}")
-        }
-        else{
+            relapseTime = currentData!!.lastDateLapsed
+            println("Last Date Lapsed: $relapseTime")
+        } else {
             relapseTime = LocalDateTime.now()
             val dataContainer = DataContainer()
             jsonManager.saveData(dataContainer)
@@ -123,8 +153,8 @@ class MainActivity : AppCompatActivity() {
         return streak
     }
 
-    fun onLinkClick(view: View){
-        if(view is TextView) {
+    fun onLinkClick(view: View) {
+        if (view is TextView) {
             var url = view.text
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
                 url = "http://$url"
@@ -133,5 +163,13 @@ class MainActivity : AppCompatActivity() {
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url.toString()))
             startActivity(browserIntent)
         }
+    }
+
+    fun showFab() {
+        binding.appBarMain.fab.show()
+    }
+
+    fun hideFab() {
+        binding.appBarMain.fab.hide()
     }
 }

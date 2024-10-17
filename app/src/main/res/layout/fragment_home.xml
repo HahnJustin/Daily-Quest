@@ -3,107 +3,165 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSecondary"
     tools:context=".ui.home.HomeFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="top|center_horizontal"
-            android:layout_centerHorizontal="true">
+        <ImageView
+            android:id="@+id/test_image"
+            android:layout_width="416dp"
+            android:layout_height="1500dp"
+            android:layout_gravity="center"
+            android:contentDescription="Border"
+            android:padding="8dp"
+            android:elevation="0dp" />
 
         <LinearLayout
+            android:id="@+id/background_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="244dp"
             android:orientation="vertical"
             android:gravity="top|center_horizontal"
             android:layout_centerHorizontal="true"
-            android:background="@color/parchment_dark">
+            android:background="?attr/colorPrimaryLight">
 
-            <!-- Rotating ImageView directly behind scroll_image -->
-            <FrameLayout
+            <ImageView
+                android:id="@+id/background_corners"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:contentDescription="Border"
+                android:padding="8dp"
+                android:elevation="0dp" />
 
-                <!-- Rotating ImageView -->
-                <ImageView
-                    android:id="@+id/rotating_background"
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="top|center_horizontal"
+                android:layout_centerHorizontal="true">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="8dp"
-                    android:src="@drawable/scroll_bading" />
+                    android:orientation="vertical"
+                    android:gravity="top|center_horizontal"
+                    android:layout_centerHorizontal="true"
 
-                <!-- Scroll Image on top of the rotating image -->
-                <ImageView
-                    android:id="@+id/scroll_image"
-                    android:layout_width="128dp"
-                    android:layout_height="128dp"
-                    android:layout_gravity="center"
-                    android:padding="8dp"
-                    android:src="@drawable/scroll_art" />
+                    android:elevation="10dp">
 
-            </FrameLayout>
+                    <!-- Rotating ImageView directly behind scroll_image -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/daily_quest_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/silkscreen"
-                android:gravity="center"
-                android:text="- Today's Quest -"
-                android:textAlignment="center"
-                android:textSize="18sp" />
+                        <!-- Rotating ImageView -->
+                        <ImageView
+                            android:id="@+id/rotating_background"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="8dp"
+                            android:elevation="5dp"
+                            android:src="@drawable/scroll_bading" />
 
-            <TextView
-                android:id="@+id/quest_name_label"
-                android:layout_width="match_parent"
-                android:layout_height="88dp"
-                android:background="@drawable/long_wood"
-                android:fontFamily="@font/cloister_black"
-                android:gravity="center"
-                android:text="TASK NAME"
-                android:lineSpacingExtra="-8dp"
-                android:lineSpacingMultiplier="0.8"
+                        <!-- Scroll Image on top of the rotating image -->
+                        <ImageView
+                            android:id="@+id/scroll_image"
+                            android:layout_width="wrap_content"
+                            android:layout_height="128dp"
+                            android:layout_gravity="center"
+                            android:padding="8dp"
+                            android:src="@drawable/scroll_art"
+                            android:elevation="20dp" />
 
-                android:textColor="@color/white"
-                android:textSize="48sp" />
+                    </FrameLayout>
 
-            <TextView
-                android:id="@+id/quest_desc_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:fontFamily="sans-serif"
-                android:paddingBottom="12dp"
-                android:text="Task Description"
-                android:textAlignment="center"
-                android:textColor="@color/parchment_darkest"
-                android:textSize="20sp" />
-        </LinearLayout>
+                    <TextView
+                        android:id="@+id/daily_quest_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/silkscreen_bold"
+                        android:gravity="center"
+                        android:text="- Today's Quest -"
+                        android:textAlignment="center"
+                        android:textSize="18sp" />
 
-            <Button
-            android:id="@+id/complete_quest_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Complete QUEST!"
-            android:layout_centerInParent="true"
-            android:layout_marginTop="32dp"
-            android:layout_gravity="center" />
-        </LinearLayout>
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:elevation="4dp">
+
+                        <ImageView
+                            android:id="@+id/task_wood"
+                            android:layout_width="512dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:contentDescription="Wood Panel"
+                            android:padding="8dp"
+                            android:adjustViewBounds="true"
+                            android:scaleType="centerCrop"
+
+                            android:src="@drawable/long_wood_128_x_4" />
+
+                        <TextView
+                            android:id="@+id/quest_name_label"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:fontFamily="@font/cloister_black"
+                            android:gravity="center"
+                            android:lineSpacingExtra="-8dp"
+                            android:lineSpacingMultiplier="0.8"
+                            android:elevation="12dp"
+                            android:text="TASK NAME"
+                            android:textColor="@color/white"
+                            android:textSize="48sp" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:id="@+id/quest_desc_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:fontFamily="@font/silkscreen"
+                        android:paddingLeft="14dp"
+                        android:paddingRight="14dp"
+                        android:paddingTop="18dp"
+                        android:paddingBottom="18dp"
+                        android:text="Task Description"
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/complete_quest_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Complete QUEST!"
+                    android:layout_centerInParent="true"
+                    android:layout_marginTop="32dp"
+                    android:layout_gravity="center" />
+            </LinearLayout>
+        </RelativeLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:gravity="center"
             android:orientation="horizontal"
-            android:background="@color/parchment_darker">
+            android:background="@drawable/thin_wood_plank">
 
             <ImageView
                 android:id="@+id/streak_image"

@@ -2,13 +2,18 @@
     <!-- Base application theme. -->
     <style name="Theme.DailyQuest" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimaryLighter">@color/parchment_dark</item>
+        <item name="colorPrimaryLight">@color/parchment_darker</item>
+        <item name="colorPrimary">@color/parchment_darkest</item>
+        <item name="colorPrimaryVariant">@color/parchment_darkester</item>
         <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondary">@color/second_darker</item>
+        <item name="colorSecondaryVariant">@color/second_darkest</item>
+        <item name="colorOnSecondary">@color/second_darkest</item>
+        <item name="colorSecondaryLight">@color/second_dark</item>
+
+        <item name="recycle_background">@color/dark_background</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->

@@ -28,7 +28,7 @@ import kotlin.random.Random
 
 class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d("NotificationReceiver", "Triggered with intent: $intent.action")
+        Log.d("NotificationReceiver", "Triggered with intent: ${intent.action}")
 
         var dataContainer = loadDataContainer(context)
         if (dataContainer == null) {
@@ -48,15 +48,12 @@ class NotificationReceiver : BroadcastReceiver() {
     }
 
     fun scheduleTaskNotification(context: Context, dataContainer: DataContainer) {
-        // Get the taskDao
-        val db = AppDatabase.getDatabase(context)
-        val taskDao = db.taskDao()
-
         // Get the next notification time (startDayTime 24 hours after taskGeneratedTime)
         var nextNotificationTime = dataContainer.startDayTime.atDate(LocalDate.now().minusDays(1));
         if(dataContainer.taskGeneratedTime != null) {
             nextNotificationTime = LocalDateTime.of(
-                dataContainer.taskGeneratedTime!!.plusDays(1).toLocalDate(),
+                dataContainer.taskGeneratedTime!!.toLocalDate(),
+                //dataContainer.taskGeneratedTime!!.plusDays(1).toLocalDate(),
                 dataContainer.startDayTime
             )
         }
@@ -85,9 +82,15 @@ class NotificationReceiver : BroadcastReceiver() {
         val tasks =  taskDao.getUncompletedTasks()
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val dayOffPercent = preferences.getInt("percent_day_off", 50)
-        //No Tasks
-        if(tasks.isEmpty() || (dayOffPercent > Random.Default.nextInt(0,100))){
+        val dayOffPercent = preferences.getInt("percent_day_off", 0)
+        val randomVal = Random.Default.nextInt(1,101)
+
+        Log.d("NotificationReceiver", "Day off percent is: $dayOffPercent and random number: $randomVal")
+
+        //No Tasks or day off granted
+        if(tasks.isEmpty() || (dayOffPercent > randomVal)){
+            Log.d("NotificationReceiver", "No task was chosen, tasks is empty: ${tasks.isEmpty()}")
+
             // Update the DataContainer for the new task
             val newDataContainer = dataContainer.copy(
                 startDayTime = dataContainer.startDayTime,
@@ -96,7 +99,7 @@ class NotificationReceiver : BroadcastReceiver() {
             )
 
             newDataContainer.setNewGeneratedTime()
-            streakManagement(dataContainer, newDataContainer)
+            streakManagement(dataContainer, newDataContainer, context)
             saveDataContainer(newDataContainer, context)
             return
         }
@@ -126,8 +129,8 @@ class NotificationReceiver : BroadcastReceiver() {
         )
 
         val notification = NotificationCompat.Builder(context, "new_quest_alerts")
-            .setContentTitle("New Task")
-            .setContentText("You have a new task: ${newTask.name}")
+            .setContentTitle(newTask.name)
+            .setContentText("You have a new daily quest!")
             .setSmallIcon(R.drawable.scroll_icon)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
@@ -142,9 +145,11 @@ class NotificationReceiver : BroadcastReceiver() {
             taskGeneratedTime = null,
             lastDateLapsed = dataContainer.lastDateLapsed
         )
-
         newDataContainer.setNewGeneratedTime()
-        streakManagement(dataContainer, newDataContainer)
+        streakManagement(dataContainer, newDataContainer, context)
+
+        Log.d("NotificationReceiver", "Chose and notified about new task: $newDataContainer")
+
         saveDataContainer(newDataContainer, context)
     }
 
@@ -178,7 +183,7 @@ class NotificationReceiver : BroadcastReceiver() {
 
         //Set new alarm
         try {
-            alarmManager.setExact(
+            alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 calendar.timeInMillis,
                 pendingIntent
@@ -217,11 +222,31 @@ class NotificationReceiver : BroadcastReceiver() {
         appScope.launch(coroutineContext) { block() }.invokeOnCompletion { pendingResult?.finish() }
     }
 
-    private fun streakManagement(dataContainer: DataContainer, newDataContainer : DataContainer){
+    private fun streakManagement(dataContainer: DataContainer, newDataContainer : DataContainer, context: Context){
         //Define if the task was completed, and streak should be reset
         if(dataContainer.currentTask != null && !dataContainer.currentTask!!.isCompleted){
             newDataContainer.setNewRelapseTime()
-            Log.d("NotificationReceiver", "Reset Relapse Time")
+
+            //Lower priority of missed task
+
+            doAsync(CoroutineScope(Dispatchers.Default)) {
+                val db = AppDatabase.getDatabase(context)
+                val taskDao = db.taskDao()
+                taskDao.delete(dataContainer.currentTask!!)
+
+                val replaceNewTask = dataContainer.currentTask == newDataContainer.currentTask
+
+                val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+                val decreaseIntensity = preferences.getInt("priority_decrease_intensity", 10)
+
+                dataContainer.currentTask!!.priority =
+                    dataContainer.currentTask!!.priority?.plus(250 * decreaseIntensity)
+                taskDao.insert(dataContainer.currentTask!!)
+
+                if(replaceNewTask) newDataContainer.currentTask = dataContainer.currentTask
+
+                Log.d("NotificationReceiver", "Reset Relapse Time, Task: ${newDataContainer.currentTask}")
+            }
         }
     }
 

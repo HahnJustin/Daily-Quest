@@ -1,21 +1,40 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Room (if not already added)
+-keepclassmembers class androidx.room.** { *; }
+-keep class androidx.room.** { *; }
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Keep Gson-related classes and methods
+-keep class com.google.gson.** { *; }
+-keep class com.google.gson.reflect.TypeToken { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Keep classes that use Gson serialization
+-keep class * implements com.google.gson.JsonDeserializer { *; }
+-keep class * implements com.google.gson.JsonSerializer { *; }
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Keep your DataContainer model class (or any other models used)
+-keep class com.example.dailyquest.models.DataContainer { *; }
+
+-keep class com.example.dailyquest.** { *; }
+
+# Keep annotations for Gson
+-keepattributes Signature
+-keepattributes *Annotation*
+
+# Prevent obfuscation of methods with Gson annotations
+-keepclassmembers class ** {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
+
+-keep class **.R$* { *; }
+
+# Handle missing javax.lang.model classes
+-dontwarn javax.lang.model.**
+
+# Handle ErrorProne annotations
+-dontwarn com.google.errorprone.annotations.**
+-keep class com.google.errorprone.annotations.** { *; }
+
+# Disable optimizations temporarily for debugging
+-dontshrink
+
+-verbose
+-printconfiguration proguard-config.txt

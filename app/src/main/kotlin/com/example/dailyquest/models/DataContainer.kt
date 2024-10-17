@@ -37,10 +37,10 @@ data class DataContainer(
     }
 
     fun setNewGeneratedTime(){
-        taskGeneratedTime = DEFAULT_START_TIME.atDate(LocalDateTime.now().toLocalDate())
+        taskGeneratedTime = startDayTime.atDate(LocalDateTime.now().toLocalDate())
     }
 
     fun setNewRelapseTime(){
-        lastDateLapsed = DEFAULT_START_TIME.atDate(LocalDateTime.now().toLocalDate())
+        lastDateLapsed = startDayTime.atDate(LocalDateTime.now().toLocalDate())
     }
 }

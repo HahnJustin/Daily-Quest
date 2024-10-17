@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:backgroundTint="@color/second_dark"
+    android:backgroundTint="?attr/colorSecondary"
     android:background="@drawable/rounded_bg"
     android:padding="4dp"
     android:layout_marginBottom="4dp">
@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/second_dark">
+        android:background="?attr/colorSecondary">
 
         <TextView
             android:id="@+id/task_name"
@@ -45,12 +45,22 @@
             tools:ignore="RtlSymmetry" />
 
 
+        <ImageView
+            android:id="@+id/priority_image"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:src="@drawable/low_priority_icon"
+            android:background="@drawable/rounded_no_pad_bg"
+            android:backgroundTint="?attr/colorSecondary"
+            android:contentDescription="@string/edit_task" />
+
         <ImageButton
             android:id="@+id/delete_button"
             android:layout_width="40dp"
             android:layout_height="wrap_content"
             android:src="@drawable/baseline_delete_24"
-            android:backgroundTint="@color/second_darker"
+            android:backgroundTint="?attr/colorSecondaryVariant"
             android:contentDescription="@string/delete_task"
             app:tint="@color/white" />
     </LinearLayout>
@@ -60,7 +70,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:backgroundTint="@color/second_light"
+        android:backgroundTint="?attr/colorSecondaryLight"
         android:background="@drawable/rounded_bg">
 
         <TextView

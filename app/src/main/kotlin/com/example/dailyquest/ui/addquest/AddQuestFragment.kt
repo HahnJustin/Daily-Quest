@@ -11,6 +11,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.example.dailyquest.MainActivity
 import com.example.dailyquest.R
 import com.example.dailyquest.database.AppDatabase
 import com.example.dailyquest.database.Task
@@ -106,7 +107,7 @@ class AddQuestFragment : Fragment() {
             if(task == null) {
                 clear()
                 // Handle adding the task or show a message
-                Toast.makeText(requireContext(), "Task Added: $name ", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Quest Added: $name ", Toast.LENGTH_SHORT).show()
 
                 lifecycleScope.launch {
                     val task = Task(
@@ -120,7 +121,7 @@ class AddQuestFragment : Fragment() {
             }
             //Edit task
             else{
-                Toast.makeText(requireContext(), "Task Edited: $name ", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Quest Edited: $name ", Toast.LENGTH_SHORT).show()
 
                 lifecycleScope.launch {
                     taskDao.delete(task!!)
@@ -153,6 +154,16 @@ class AddQuestFragment : Fragment() {
         }
 
         return view
+    }
+
+    override fun onStart() {
+        super.onStart()
+        (activity as? MainActivity)?.hideFab()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        (activity as? MainActivity)?.showFab()
     }
 
     private fun setupPrioritySpinner() {
@@ -199,10 +210,10 @@ class AddQuestFragment : Fragment() {
             questDescInput?.setText(task!!.description)
             prioritySpinner?.setSelection(getPriorityIndex(task!!.priority))  // Reset to "Normal" priority
             addQuestButton?.text = "Edit Quest"
-            actionLabel?.text = "Edit Quest Details"
+            actionLabel?.text = "Edit Quest"
         }
         else{
-            actionLabel?.text = "Add Quest Details"
+            actionLabel?.text = "Add Quest"
             addQuestButton?.text = "Add Quest"
             clear()
         }

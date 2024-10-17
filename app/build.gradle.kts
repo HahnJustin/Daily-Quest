@@ -9,6 +9,15 @@ android {
     namespace = "com.example.dailyquest"
     compileSdk = 34
 
+    signingConfigs {
+        create("release") {
+            keyAlias = "key0"
+            keyPassword = "potato123!"
+            storeFile = file("C:/Users/justn/Development/AndroidKeyStores/daily_quest_keystore.jks")
+            storePassword = "pineapplepineapplepineapple"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.dailyquest"
         minSdk = 26
@@ -30,6 +39,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
         }
         getByName("debug") {
             applicationIdSuffix = ".debug"

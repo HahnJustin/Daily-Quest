@@ -18,6 +18,7 @@ import com.example.dailyquest.database.Task
 import com.example.dailyquest.ui.addquest.AddQuestFragment
 import com.example.dailyquest.utils.JsonManager
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 class DatabaseViewerFragment : Fragment() {
 
@@ -70,7 +71,17 @@ class DatabaseViewerFragment : Fragment() {
                 emptyTextView.visibility = View.GONE
                 recyclerView.visibility = View.VISIBLE
 
-                val adapter = TaskAdapter(tasks, ::onEditTask, ::onDeleteTask)
+                val sortedTasks = if (!showCompletedTasks) {
+                    tasks.sortedBy { (it.priority ?: 0) + it.priorityShift }
+
+                } else {
+                    tasks.sortedByDescending {
+                        it.completedDate?.let { LocalDateTime.parse(it) } ?: LocalDateTime.MIN
+                    }
+                }
+
+
+                val adapter = TaskAdapter(sortedTasks, ::onEditTask, ::onDeleteTask)
                 recyclerView.adapter = adapter
             }
         }

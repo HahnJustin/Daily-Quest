@@ -11,7 +11,7 @@ data class Task(
     val name: String,
     val description: String,
     val dueDate: String? = null,
-    val priority: Int? = null,
+    var priority: Int? = null,
     var priorityShift: Int = 0,
     var isCompleted: Boolean = false,
     var completedDate: String? = null
@@ -29,7 +29,7 @@ data class Task(
     }
 
     override fun toString() : String{
-        return "[DataContainer]: $name \n" +
+        return "[Task]: $name \n" +
                 "  Description: $description \n" +
                 "  DueDate: $dueDate \n" +
                 "  Priority: $priority \n" +

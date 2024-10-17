@@ -26,6 +26,15 @@
         android:min="0"
         android:max="100" />
 
+    <!-- Preference for variance intensity -->
+    <SeekBarPreference
+        android:key="priority_decrease_intensity"
+        android:title="Missed Quest Priority Decrease"
+        android:summary="Adjust the priority decrease on miss from 0.0 to 2.0"
+        android:defaultValue="10"
+        android:min="0"
+        android:max="20" />
+
     <!-- Preference for resetting the save data -->
     <Preference
         android:key="reset_data_container"

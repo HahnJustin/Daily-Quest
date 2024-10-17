@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="recycle_background" format="color" />
+    <attr name="colorSecondaryLight" format="color" />
+    <attr name="colorPrimaryLighter" format="color" />
+    <attr name="colorPrimaryLight" format="color" />
+</resources>
